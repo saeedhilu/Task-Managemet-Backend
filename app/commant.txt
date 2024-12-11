@@ -1,0 +1,15 @@
+
+docker build -t task-management-app .
+
+
+--Docker run 
+
+
+docker run -p 8000:8000 task-management-app
+
+-- Check if the container is running:-- 
+docker ps
+
+
+
+pip freeze > requirements.txt
