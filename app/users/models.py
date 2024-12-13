@@ -5,7 +5,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from .manager import CustomUserManager
 from django.core.validators import EmailValidator, MinLengthValidator, MaxLengthValidator
 from django.contrib.auth.password_validation import validate_password
-from tasks.models import Task  
+# from tasks.models import Task  
 from django.utils.timezone import now
 
 
@@ -60,7 +60,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
 
 class Comment(models.Model):
-    task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='comments')
+    task = models.ForeignKey('tasks.Task', on_delete=models.CASCADE, related_name='comments')
     created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='comments')
     text = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
@@ -69,7 +69,7 @@ class Comment(models.Model):
         return f'Comment by {self.created_by} on {self.task.title}'
 
 class Mention(models.Model):
-    task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='mentions')
+    task = models.ForeignKey('tasks.Task', on_delete=models.CASCADE, related_name='mentions')
     mentioned_user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='mentions_received')
     mentioned_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='mentions_created')
     created_at = models.DateTimeField(auto_now_add=True)
@@ -86,6 +86,7 @@ class Notification(models.Model):
     description = models.TextField()
     link = models.URLField(blank=True, null=True)  
     created_at = models.DateTimeField(default=now)
+    is_read = models.BooleanField(default=False) 
 
-    class Meta:
+    class Meta: 
         ordering = ['-created_at']  

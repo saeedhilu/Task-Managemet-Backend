@@ -1,8 +1,7 @@
 from rest_framework import serializers
 from users.models import CustomUser
-from tasks.models import Task,Tag
 from django.contrib.auth.password_validation import validate_password
-
+from .models import Comment, Mention,Notification
 
 class RegisterSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(
@@ -55,34 +54,34 @@ class LoginSerializer(serializers.ModelSerializer):
         return attrs
 
 
-class TaskSerializer(serializers.ModelSerializer):
-    assigned_to = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.all(), many=True, required=False)
-    created_by = serializers.ReadOnlyField(source='created_by.username')  
-    tags = serializers.PrimaryKeyRelatedField(queryset=Tag.objects.all(), many=True, required=False)
-
+class CommentSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Task
+        model = Comment
         fields = '__all__'
+        read_only_fields = ['created_by', 'created_at']
 
     def create(self, validated_data):
         validated_data['created_by'] = self.context['request'].user
         return super().create(validated_data)
+    
 
-    def update(self, instance, validated_data):
-        partial = self.context.get('partial', False)
-        
-        if partial:
-            for field, value in validated_data.items():
-                setattr(instance, field, value)
-        else:
-            instance.title = validated_data.get('title', instance.title)
-            instance.description = validated_data.get('description', instance.description)
-            instance.status = validated_data.get('status', instance.status)
-            instance.priority = validated_data.get('priority', instance.priority)
-            instance.due_date = validated_data.get('due_date', instance.due_date)
-            instance.assigned_to.set(validated_data.get('assigned_to', instance.assigned_to.all()))
-            instance.project = validated_data.get('project', instance.project)
-            instance.tags.set(validated_data.get('tags', instance.tags.all()))
-        
-        instance.save()
-        return instance
+class MentionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Mention
+        fields = '__all__'
+        read_only_fields = ['mentioned_by', 'created_at']
+
+    def create(self, validated_data):
+        validated_data['mentioned_by'] = self.context['request'].user
+        return super().create(validated_data)
+    
+
+class NotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notification
+        fields = '__all__'
+
+class UserSearchSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ['id', 'username'] 

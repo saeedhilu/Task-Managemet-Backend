@@ -4,6 +4,12 @@ from django.forms import ValidationError
 from django.utils import timezone
 from projects.models import Project
 from django.db import models
+from core.utils.email import send_email
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
+from django.utils.timezone import now
+from users.models import Notification
+
 
 class Tag(models.Model):
     name = models.CharField(max_length=255, unique=True)
@@ -50,7 +56,7 @@ class Task(models.Model):
     created_by = models.ForeignKey('users.CustomUser', related_name='created_tasks', on_delete=models.CASCADE)
     project = models.ForeignKey(Project, related_name='tasks', on_delete=models.CASCADE)
     attachments = CloudinaryField('attachment', blank=True, null=True)
-    tags = models.ManyToManyField(Tag, related_name='tasks', blank=True)
+    # tags = models.ManyToManyField(Tag, related_name='tasks', blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -64,4 +70,49 @@ class Task(models.Model):
     def clean(self):
         if self.due_date and self.due_date < timezone.now().date():
             raise ValidationError({'due_date': 'Due date cannot be in the past.'})
+        
+
+    def notify_assigned_members(self):
+        
+        print("dsdasdnmmsdf")
+
+
+        subject = f"New Task Assigned: {self.title}"
+        message = f"""
+        Hello,
+
+        You have been assigned to a new task:
+        Title: {self.title}
+        Description: {self.description}
+        Priority: {self.priority}
+        Due Date: {self.due_date}
+
+        Please check your task management system for more details.
+        """
+        recipients = [user.email for user in self.assigned_to.all()]
+        print(recipients)
+        send_email(subject, message, recipients)
+
+        # Send Real-Time Notifications
+        channel_layer = get_channel_layer()
+        notification = {
+            'type': 'task_notification',
+            'message': f"You have been assigned to a new task: {self.title}",
+            'task_id': self.id,
+        }
+        print(self.assigned_to.all())
+        for user in self.assigned_to.all():
+            Notification.objects.create(
+            recipient=user,
+            actor=self.created_by,
+            verb="assigned you to a task",
+            description=f"Task: {self.title}\nPriority: {self.priority}",
+            link=f"/tasks/{self.id}/", 
+            created_at=now()
+            )
+            print(user.email)
+            async_to_sync(channel_layer.group_send)(
+                f"user_{user.id}", notification
+            )
+            
 
