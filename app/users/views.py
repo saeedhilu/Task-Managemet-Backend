@@ -80,9 +80,9 @@ class UserSearchView(generics.ListAPIView):
     def get_queryset(self):
         username = self.request.query_params.get('q', '')
         if len(username) > 4:
-            return super().get_queryset().filter(username__icontains=username)
+            return super().get_queryset().filter(username__icontains=username)[:7] 
         else:
-            return super().get_queryset().filter(username__startswith=username)
+            return super().get_queryset().filter(username__startswith=username)[:7]
 
     def get(self, request, *args, **kwargs):
         users = self.get_queryset().values('id', 'username')
