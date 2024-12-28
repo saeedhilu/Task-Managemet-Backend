@@ -12,6 +12,10 @@ from rest_framework import viewsets
 
 
 class TaskViewSet(viewsets.ModelViewSet):
+    """
+    Viewset for managing tasks.
+    """
+
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
 
@@ -22,20 +26,31 @@ class TaskViewSet(viewsets.ModelViewSet):
 
 
 class TagViewSet(viewsets.ModelViewSet):
+    """
+    Viewset for managing tags.
+    """
+
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     permission_classes = [AdminOrPm]
 
 
 class TaskSpecificViewSet(viewsets.ModelViewSet):
+    """
+    Viewset for managing tasks for a specific user.
+
+    """
+
     queryset = Task.objects.all()
     serializer_class = TaskSpecificSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
+        """
+        Filter tasks based on user email and status query parameters.
+        """
         email = self.request.query_params.get("user_email")
         status = self.request.query_params.get("status")
-        print("user email and status", email, status)
 
         queryset = super().get_queryset()
 

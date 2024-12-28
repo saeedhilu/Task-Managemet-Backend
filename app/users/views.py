@@ -17,6 +17,9 @@ from rest_framework.exceptions import NotFound
 
 
 class RegisterView(APIView):
+    """
+    Registers a new user.
+    """
     throttle_classes = [UserRateThrottle]
 
     def post(self, request):
@@ -31,6 +34,9 @@ class RegisterView(APIView):
 
 
 class LoginView(APIView):
+    """
+    Logs in an existing user.
+    """
     throttle_classes = [UserRateThrottle]
 
     def post(self, request):
@@ -62,6 +68,7 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
+    # TODO : pagination want to list 
     # pagination_class = CommentPagination
 
     def get_queryset(self):
@@ -73,13 +80,11 @@ class CommentViewSet(viewsets.ModelViewSet):
         return query_set
 
     def perform_create(self, serializer):
-        # Save the comment
         comment = serializer.save(created_by=self.request.user)
 
-        # Detect mentions in the comment text
         mentioned_usernames = self.detect_mentions(comment.text)
         print('mentioned_usernames', mentioned_usernames)
-        # Save mentions and send notifications
+    
         self.handle_mentions(mentioned_usernames, comment)
 
     def detect_mentions(self, text):
@@ -93,7 +98,6 @@ class CommentViewSet(viewsets.ModelViewSet):
         mentioned_users = set()
         invalid_usernames = []
 
-        # Fetch users in a single query
         existing_users = CustomUser.objects.filter(username__in=mentioned_usernames)
         existing_usernames = {user.username for user in existing_users}
 

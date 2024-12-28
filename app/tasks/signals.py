@@ -9,12 +9,11 @@ from django.utils.timezone import now
 
 @receiver(post_save, sender=Task)
 def send_task_update_notification(sender, instance, created, **kwargs):
-    print("Sending task update notification")
-        # -----------
-        # it will trigger a notification when a task is updated
-        #------------
+    """
+    sent a task update notification
+    """
     if not created:  
-        print("Task update notification0")
+    
         channel_layer = get_channel_layer()
         message = f"The task '{instance.title}' has been updated."
         
