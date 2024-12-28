@@ -70,12 +70,11 @@ class Comment(models.Model):
 
 class Mention(models.Model):
     task = models.ForeignKey('tasks.Task', on_delete=models.CASCADE, related_name='mentions')
-    mentioned_user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='mentions_received')
+    mentioned_user = models.ManyToManyField(CustomUser, related_name='mentions_received')
     mentioned_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='mentions_created')
     created_at = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self):
-        return f'Mentioned {self.mentioned_user} in task {self.task.title}'
+    
     
 
 

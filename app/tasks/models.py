@@ -56,7 +56,7 @@ class Task(models.Model):
     created_by = models.ForeignKey('users.CustomUser', related_name='created_tasks', on_delete=models.CASCADE)
     project = models.ForeignKey(Project, related_name='tasks', on_delete=models.CASCADE)
     attachments = CloudinaryField('attachment', blank=True, null=True)
-    # tags = models.ManyToManyField(Tag, related_name='tasks', blank=True)
+    tags = models.ManyToManyField(Tag, related_name='tasks', blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

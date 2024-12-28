@@ -71,6 +71,7 @@ INSTALLED_APPS = [
     'rest_framework',
     "corsheaders",
     'django_filters',
+    'debug_toolbar',
     
     # Local apps
     'users',
@@ -84,6 +85,7 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -91,6 +93,9 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'config.urls'
+INTERNAL_IPS = [
+    '127.0.0.1',  # For localhost
+]
 
 TEMPLATES = [
     {
@@ -150,6 +155,8 @@ DATABASES = {
         'PORT': os.getenv('DB_PORT'),
     }
 }
+
+
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 
@@ -172,7 +179,16 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+    'DEFAULT_THROTTLE_CLASSES': (
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle',
+    ),
+    # 'DEFAULT_THROTTLE_RATES': {
+    #     'anon': '4/min',  
+    #     'user': '7/min',  
+    # },
 }
+
 
 #simple jwt
 SIMPLE_JWT = {

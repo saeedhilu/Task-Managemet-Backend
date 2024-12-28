@@ -21,10 +21,10 @@ class TaskSerializer(serializers.ModelSerializer):
 
 
     def get_members_usernames(self, obj):
-        # Fetching usernames of members from the related users
+        
         member_ids = obj.assigned_to.all().values_list('id', flat=True)
         print('members are', member_ids)
-        return CustomUser.objects.filter(id__in=member_ids).values_list('username', flat=True)
+        return CustomUser.objects.filter(id__in=member_ids).values_list('username', 'id')
     
     def create(self, validated_data):
         # Automatically set the created_by field to the requesting user

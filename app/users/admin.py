@@ -21,15 +21,15 @@ class CommentAdmin(admin.ModelAdmin):
 
 @admin.register(Mention)
 class MentionAdmin(admin.ModelAdmin):
-    list_display = ('task', 'mentioned_user', 'mentioned_by', 'created_at')
-    search_fields = ('task__title', 'mentioned_user__username', 'mentioned_by__username')
+    list_display = ('id','task', 'mentioned_by', 'created_at')
+    search_fields = ('task__title',  'mentioned_by__username')
     list_filter = ('created_at',)
     ordering = ('-created_at',)
 
 
 @admin.register(Notification)
 class NotificationAdmin(admin.ModelAdmin):
-    list_display = ('recipient', 'actor', 'verb', 'description', 'created_at')
+    list_display = ('id','recipient', 'actor', 'verb', 'description', 'created_at')
     search_fields = ('recipient__username', 'actor__username', 'verb', 'description')
     list_filter = ('created_at',)
     ordering = ('-created_at',)
